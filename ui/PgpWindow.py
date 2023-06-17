@@ -5,6 +5,7 @@ from .PgpInboxFrame import PgpInboxFrame
 from .GenerateKeyFrame import GenerateKeyFrame
 from .ImportKeyFrame import ImportKeyFrame
 from .PrivateKeysFrame import PrivateKeysFrame
+from .PublicKeysFrame import PublicKeysFrame
 
 
 class PgpWindow:
@@ -28,6 +29,7 @@ class PgpWindow:
         keymenu = tk.Menu(mainmenu)
         mainmenu.add_cascade(label="Keys", menu=keymenu)
         keymenu.add_command(label="Show Private Keys", command=self.setPrivateKeysFrame)
+        keymenu.add_command(label="Show Public Keys", command=self.setPublicKeysFrame)
         keymenu.add_command(label="Import Key", command=self.setImportKeyFrame)
         keymenu.add_command(label="Generate Key", command=self.setGenerateKeyFrame)
         
@@ -58,4 +60,8 @@ class PgpWindow:
     
     def setPrivateKeysFrame(self):
         frame = PrivateKeysFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+
+    def setPublicKeysFrame(self):
+        frame = PublicKeysFrame(self.window, self.user_folder, self.username)
         self.set_new_frame(frame)
