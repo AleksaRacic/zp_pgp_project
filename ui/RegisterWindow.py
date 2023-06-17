@@ -13,7 +13,7 @@ class RegisterWindow:
         frame = tk.Frame(self.window, bg='#ffffff')
 
         login_label = tk.Label(
-            frame, text="Login", bg='#ffffff', fg="#0011ff", font=("Arial", 30))
+            frame, text="Register", bg='#ffffff', fg="#0011ff", font=("Arial", 30))
         username_label = tk.Label(
             frame, text="Username", bg='#ffffff', fg="#000000", font=("Arial", 16))
         self.username_entry = tk.Entry(frame, font=("Arial", 16))
@@ -54,7 +54,7 @@ class RegisterWindow:
 
             self.window.destroy()
         except FileExistsError:
-            messagebox.showerror(title="Error", message="Invalid login.")
+            messagebox.showerror(title="Error", message="Name already exists.")
 
 
     

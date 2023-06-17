@@ -3,10 +3,15 @@ from tkinter import messagebox
 from pathlib import Path
 from .PgpInboxFrame import PgpInboxFrame
 from .GenerateKeyFrame import GenerateKeyFrame
+from .ImportKeyFrame import ImportKeyFrame
+from .PrivateKeysFrame import PrivateKeysFrame
+from .PublicKeysFrame import PublicKeysFrame
+
 
 class PgpWindow:
 
-    def __init__(self, master, user_folder):
+    def __init__(self, master, user_folder, username):
+        self.username = username
         self.user_folder = user_folder
         self.window = tk.Toplevel(master)
         self.window.title("PGP mail")
@@ -23,8 +28,9 @@ class PgpWindow:
 
         keymenu = tk.Menu(mainmenu)
         mainmenu.add_cascade(label="Keys", menu=keymenu)
-        keymenu.add_command(label="Show Keys", command=lambda:print("Show Keys"))
-        keymenu.add_command(label="Import Key", command=lambda:print("Import Key Window"))
+        keymenu.add_command(label="Show Private Keys", command=self.setPrivateKeysFrame)
+        keymenu.add_command(label="Show Public Keys", command=self.setPublicKeysFrame)
+        keymenu.add_command(label="Import Key", command=self.setImportKeyFrame)
         keymenu.add_command(label="Generate Key", command=self.setGenerateKeyFrame)
         
         self.curr_frame = PgpInboxFrame(self.window, user_folder)
@@ -33,6 +39,7 @@ class PgpWindow:
     def set_new_frame(self, newFrame):
         self.curr_frame.pack_forget()
         self.curr_frame.destroy()
+        self.curr_frame = newFrame
         newFrame.pack(fill=tk.BOTH, expand=True)
 
     def setPgpInboxFrame(self):
@@ -40,5 +47,21 @@ class PgpWindow:
         self.set_new_frame(frame)
 
     def setGenerateKeyFrame(self):
-        frame = GenerateKeyFrame(self.window, self.user_folder)
+        frame = GenerateKeyFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+    
+    def setImportKeyFrame(self):
+        frame = ImportKeyFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+    
+    def setImportKeyFrame(self):
+        frame = ImportKeyFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+    
+    def setPrivateKeysFrame(self):
+        frame = PrivateKeysFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+
+    def setPublicKeysFrame(self):
+        frame = PublicKeysFrame(self.window, self.user_folder, self.username)
         self.set_new_frame(frame)

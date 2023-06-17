@@ -46,7 +46,7 @@ class LoginWindow:
             data = json.load(file)
 
         if self.username_entry.get()==data['username'] and self.password_entry.get()==data['password']:
-            PgpWindow(self.master, folder_path)
+            PgpWindow(self.master, folder_path, self.username_entry.get())
             self.window.destroy()
         else:
             messagebox.showerror(title="Error", message="Invalid login.")

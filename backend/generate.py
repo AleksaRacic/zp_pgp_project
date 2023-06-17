@@ -3,59 +3,14 @@ import os
 from .private_key_ring import PrivateKeyRing
 from .public_key_ring import PublicKeyRing
 from cryptography.hazmat.primitives.asymmetric import rsa, dsa
-# from Crypto.PublicKey import ElGamalKey
+from Crypto.PublicKey import ElGamal
 from Crypto.Math.Numbers import Integer
 from Crypto.Math.Primality import generate_probable_prime
 from Crypto.Random import get_random_bytes
 from cryptography.hazmat.primitives import serialization
+from Crypto.IO import PEM
 
-
-# def generate_elgamal_keys(bits, randfunc):
-
-#     obj=ElGamalKey()
-
-#     # Generate a safe prime p
-#     # See Algorithm 4.86 in Handbook of Applied Cryptography
-#     obj.p = generate_probable_prime(exact_bits=bits, randfunc=randfunc)
-#     q = (obj.p - 1) >> 1
-
-#     # Generate generator g
-#     while 1:
-#         # Choose a square residue; it will generate a cyclic group of order q.
-#         obj.g = pow(Integer.random_range(min_inclusive=2,
-#                                      max_exclusive=obj.p,
-#                                      randfunc=randfunc), 2, obj.p)
-
-#         # We must avoid g=2 because of Bleichenbacher's attack described
-#         # in "Generating ElGamal signatures without knowning the secret key",
-#         # 1996
-#         if obj.g in (1, 2):
-#             continue
-
-#         # Discard g if it divides p-1 because of the attack described
-#         # in Note 11.67 (iii) in HAC
-#         if (obj.p - 1) % obj.g == 0:
-#             continue
-
-#         # g^{-1} must not divide p-1 because of Khadir's attack
-#         # described in "Conditions of the generator for forging ElGamal
-#         # signature", 2011
-#         ginv = obj.g.inverse(obj.p)
-#         if (obj.p - 1) % ginv == 0:
-#             continue
-
-#         # Found
-#         break
-
-#     # Generate private key x
-#     obj.x = Integer.random_range(min_inclusive=2,
-#                                  max_exclusive=obj.p-1,
-#                                  randfunc=randfunc)
-#     # Generate public key y
-#     obj.y = pow(obj.g, obj.x, obj.p)
-#     return obj
-
-def generate_and_serialize_keys(key_size, algorithm):
+def generate_and_serialize_keys(key_size, algorithm, passphrase):
 
     if algorithm == "RSA":
         private_key = rsa.generate_private_key(
@@ -69,26 +24,29 @@ def generate_and_serialize_keys(key_size, algorithm):
         )
         public_key = private_key.public_key()
     elif algorithm == "ElGamal":
-        # private_key = generate_elgamal_keys(key_size, get_random_bytes)
-        # public_key = private_key.publickey()
-        pass
+        private_key = ElGamal.generate(key_size, get_random_bytes)
+        public_key = private_key.publickey()
     else:
         raise TypeError
     
 
-    # sa fronta lozinka koju je uneo sam korisnik
-    passphrase = "tasha123"
-    encryption_algorithm = serialization.BestAvailableEncryption(password=passphrase.encode())
-    pem_private = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=encryption_algorithm
-    )
+    if algorithm != "ElGamal":
+        encryption_algorithm = serialization.BestAvailableEncryption(password=passphrase.encode())
+        pem_private = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=encryption_algorithm
+        )
 
-    pem_public = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    )
+        pem_public = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+    else:
+        pem_public = PEM.encode(public_key)
+        pem_private = PEM.encode(private_key, passphrase=passphrase)
+
+
 
     return pem_private, pem_public, passphrase
 
@@ -99,18 +57,18 @@ def export_keys(key):
         os.makedirs(path, exist_ok=True)
         file_path = os.path.join(path, f'{key["email"]}.pem')
         with open(file_path, 'wb') as f:
-            f.write(key['private_key'])
+            f.write(key['private_key'].encode('utf-8'))
     elif key['public_key']:
         path = os.path.join('keys', 'public_keys', f'{key["email"]}.pem')
         os.makedirs(path, exist_ok=True)
         file_path = os.path.join(path, f'{key["email"]}.pem')
         with open(file_path, 'wb') as f:
-            f.write(key['public_key'])
+            f.write(key['public_key'].encode('utf-8'))
 
-def generate_keys(name, email, algorithm, key_size):
+def generate_keys(name, email, algorithm, key_size, passphrase):
 
     try:
-        private_key, public_key, passphrase = generate_and_serialize_keys(key_size=key_size, algorithm=algorithm)
+        private_key, public_key, passphrase = generate_and_serialize_keys(key_size=key_size, algorithm=algorithm, passphrase=passphrase)
     except Exception as e:
         print(e)
     
@@ -122,7 +80,7 @@ def generate_keys(name, email, algorithm, key_size):
         'email': email,
         'algorithm': algorithm,
         'key_size': key_size,
-        'private_key': private_key
+        'private_key': private_key.decode('utf-8')
     }
 
     public_key_info = {
@@ -131,7 +89,7 @@ def generate_keys(name, email, algorithm, key_size):
         'email': email,
         'algorithm': algorithm,
         'key_size': key_size,
-        'public_key': public_key
+        'public_key': public_key.decode('utf-8')
     }
 
     return private_key_info,public_key_info
@@ -147,11 +105,11 @@ def main():
     name = "Tasha"
     email = "tasha@gmail.com"
     # terba da bude drop-down lista sa RSA, DSA ili ElGamal
-    algorithm = "DSA"
+    algorithm = "ElGamal"
     # terba da bude drop-down lista sa 1024 ili 2048
     key_size = 1024
-
-    private_key_info,public_key_info = generate_keys(name, email, algorithm, key_size)
+    passphrase = "tasha123"
+    private_key_info,public_key_info = generate_keys(name, email, algorithm, key_size, passphrase)
 
     public_key_ring.add_key(public_key_info['key_id'], public_key_info)
     private_key_ring.add_key(public_key_info['key_id'], private_key_info)
