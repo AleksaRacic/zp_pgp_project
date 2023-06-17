@@ -57,13 +57,13 @@ def export_keys(key):
         os.makedirs(path, exist_ok=True)
         file_path = os.path.join(path, f'{key["email"]}.pem')
         with open(file_path, 'wb') as f:
-            f.write(key['private_key'])
+            f.write(key['private_key'].encode('utf-8'))
     elif key['public_key']:
         path = os.path.join('keys', 'public_keys', f'{key["email"]}.pem')
         os.makedirs(path, exist_ok=True)
         file_path = os.path.join(path, f'{key["email"]}.pem')
         with open(file_path, 'wb') as f:
-            f.write(key['public_key'])
+            f.write(key['public_key'].encode('utf-8'))
 
 def generate_keys(name, email, algorithm, key_size, passphrase):
 
@@ -80,7 +80,7 @@ def generate_keys(name, email, algorithm, key_size, passphrase):
         'email': email,
         'algorithm': algorithm,
         'key_size': key_size,
-        'private_key': private_key
+        'private_key': private_key.decode('utf-8')
     }
 
     public_key_info = {
@@ -89,7 +89,7 @@ def generate_keys(name, email, algorithm, key_size, passphrase):
         'email': email,
         'algorithm': algorithm,
         'key_size': key_size,
-        'public_key': public_key
+        'public_key': public_key.decode('utf-8')
     }
 
     return private_key_info,public_key_info
