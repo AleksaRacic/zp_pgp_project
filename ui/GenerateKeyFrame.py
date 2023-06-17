@@ -44,5 +44,6 @@ class GenerateKeyFrame(tk.Frame):
         user = "test"
         algorithm = self.dropdown_var.get()
         key_size = self.key_size_var.get()
-        print(generate_keys(user, user, algorithm, key_size))
+        password = self.password_entry.get()
+        print(generate_keys(user, user, algorithm, key_size, password))
         
