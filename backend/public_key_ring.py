@@ -21,6 +21,9 @@ class PublicKeyRing:
         if key_id in self.keys:
             del self.keys[key_id]
     
+    def get_items(self):
+        return self.keys.values()
+    
     def save(self):
         with open(self.filepath, "w") as file:
             json.dump(self.keys, file)

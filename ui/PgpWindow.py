@@ -4,6 +4,8 @@ from pathlib import Path
 from .PgpInboxFrame import PgpInboxFrame
 from .GenerateKeyFrame import GenerateKeyFrame
 from .ImportKeyFrame import ImportKeyFrame
+from .PrivateKeysFrame import PrivateKeysFrame
+
 
 class PgpWindow:
 
@@ -25,7 +27,7 @@ class PgpWindow:
 
         keymenu = tk.Menu(mainmenu)
         mainmenu.add_cascade(label="Keys", menu=keymenu)
-        keymenu.add_command(label="Show Keys", command=lambda:print("Show Keys"))
+        keymenu.add_command(label="Show Private Keys", command=self.setPrivateKeysFrame)
         keymenu.add_command(label="Import Key", command=self.setImportKeyFrame)
         keymenu.add_command(label="Generate Key", command=self.setGenerateKeyFrame)
         
@@ -35,6 +37,7 @@ class PgpWindow:
     def set_new_frame(self, newFrame):
         self.curr_frame.pack_forget()
         self.curr_frame.destroy()
+        self.curr_frame = newFrame
         newFrame.pack(fill=tk.BOTH, expand=True)
 
     def setPgpInboxFrame(self):
@@ -47,4 +50,12 @@ class PgpWindow:
     
     def setImportKeyFrame(self):
         frame = ImportKeyFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+    
+    def setImportKeyFrame(self):
+        frame = ImportKeyFrame(self.window, self.user_folder, self.username)
+        self.set_new_frame(frame)
+    
+    def setPrivateKeysFrame(self):
+        frame = PrivateKeysFrame(self.window, self.user_folder, self.username)
         self.set_new_frame(frame)
