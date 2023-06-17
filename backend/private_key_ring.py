@@ -3,7 +3,13 @@ import json
 class PrivateKeyRing:
     def __init__(self, keys_folder):
         self.keys_folder = keys_folder
-        self.keys = {}
+        self.filepath = keys_folder.joinpath('private_key_ring.json')
+        if self.filepath.is_file():
+            with self.filepath.open(mode='r') as file:
+                self.keys = json.load(file)
+            print(self.keys)
+        else:
+            self.keys = dict()
 
     def add_key(self, key_id, info):
         self.keys[key_id] = info
@@ -16,5 +22,5 @@ class PrivateKeyRing:
             del self.keys[key_id]
     
     def save(self):
-        with open(self.keys_folder.joinpath('private_key_ring.json'), "w") as file:
+        with open(self.filepath, "w") as file:
             json.dump(self.keys, file)
