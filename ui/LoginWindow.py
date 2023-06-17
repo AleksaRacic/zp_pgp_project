@@ -3,7 +3,7 @@ from tkinter import messagebox
 from pathlib import Path
 import json
 
-from PgpWindow import PgpWindow
+from .PgpWindow import PgpWindow
 
 class LoginWindow:
 

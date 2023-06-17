@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from pathlib import Path
-from PgpInboxFrame import PgpInboxFrame
+from .PgpInboxFrame import PgpInboxFrame
+from .GenerateKeyFrame import GenerateKeyFrame
 
 class PgpWindow:
 
@@ -15,15 +16,16 @@ class PgpWindow:
         mainmenu = tk.Menu(self.window)
         self.window.config(menu=mainmenu)
 
-        keymenu = tk.Menu(mainmenu)
-        mainmenu.add_cascade(label="Mail", menu=keymenu)
-        keymenu.add_command(label="Inbox", command=self.setPgpInboxFrame)
-        keymenu.add_command(label="Compose", command=lambda:print("Compose"))
+        mailmenu = tk.Menu(mainmenu)
+        mainmenu.add_cascade(label="Mail", menu=mailmenu)
+        mailmenu.add_command(label="Inbox", command=self.setPgpInboxFrame)
+        mailmenu.add_command(label="Compose", command=lambda:print("Compose"))
 
         keymenu = tk.Menu(mainmenu)
         mainmenu.add_cascade(label="Keys", menu=keymenu)
         keymenu.add_command(label="Show Keys", command=lambda:print("Show Keys"))
         keymenu.add_command(label="Import Key", command=lambda:print("Import Key Window"))
+        keymenu.add_command(label="Generate Key", command=self.setGenerateKeyFrame)
         
         self.curr_frame = PgpInboxFrame(self.window, user_folder)
         self.curr_frame.pack(fill=tk.BOTH, expand=True)
@@ -35,4 +37,8 @@ class PgpWindow:
 
     def setPgpInboxFrame(self):
         frame = PgpInboxFrame(self.window, self.user_folder)
+        self.set_new_frame(frame)
+
+    def setGenerateKeyFrame(self):
+        frame = GenerateKeyFrame(self.window, self.user_folder)
         self.set_new_frame(frame)

@@ -1,6 +1,6 @@
 import tkinter as tk
-from LoginWindow import LoginWindow
-from RegisterWindow import RegisterWindow
+from .LoginWindow import LoginWindow
+from .RegisterWindow import RegisterWindow
 
 class PgpApp(tk.Tk):
 
