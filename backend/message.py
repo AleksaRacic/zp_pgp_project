@@ -14,11 +14,12 @@ from Crypto.Util.Padding import pad, unpad
 
 class SendMessageBuilder:
 
-    def __init__(self, plain_text, subject):
+    def __init__(self, plain_text, subject, sender):
         self.plain_message={
             'subject' : subject,
             'timestamp' : time.time(),
-            'message' : plain_text
+            'message' : plain_text,
+            'sender' : sender
         }
 
         self.message = json.dumps(self.plain_message).encode('utf-8')
