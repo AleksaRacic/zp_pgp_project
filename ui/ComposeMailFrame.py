@@ -81,7 +81,7 @@ class ComposeMailFrame(tk.Frame):
         public_key_ring = PublicKeyRing(self.user_folder.joinpath('keys'))
         all_keys = public_key_ring.keys.values()
 
-        return [key['name'] for key in all_keys if key['algorithm'] in ["DSA", "ElGamal"]] # changeme
+        return [key['name'] for key in all_keys if key['algorithm'] in ["RSA", "ElGamal"]] # changeme
     
     def privateKeys(self):
         private_key_ring = PrivateKeyRing(self.user_folder.joinpath('keys'))
