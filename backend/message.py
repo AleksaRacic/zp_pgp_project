@@ -124,7 +124,10 @@ class SendMessageBuilder:
         return self
     
     def to_base64(self):
-        self.message = base64.b64encode(self.message)
+        self.message = {
+            'base64' : self.message.decode('utf-8')
+        }
+        self.message = base64.b64encode(json.dumps(self.message).encode('utf-8'))
 
     def build(self):
         return self.message
@@ -246,12 +249,18 @@ class ReceiveMsgBuilder:
     def is_base64(self):
         try:
             decoded_data = base64.b64decode(self.message)
+            data_json = json.loads(decoded_data.decode('utf-8'))
+            if data_json.get('base64') is None:
+                return False
             return True
-        except base64.binascii.Error:
+        except Exception:
             return False
         
     def decode_base64(self):
-        self.message = base64.b64decode(self.message)
+        decoded_data = base64.b64decode(self.message)
+        data_json = json.loads(decoded_data.decode('utf-8'))
+        self.message = data_json['base64'].encode('utf-8')
+
     
     def build(self):
         return json.loads(self.message.decode('utf-8'))

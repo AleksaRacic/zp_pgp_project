@@ -6,7 +6,7 @@ if __name__ == '__main__':
 
     private_key_info1, public_key_info1 = generate_keys('name', 'email', 'RSA', 1024, 'passphrase')
 
-    msgBuilder = SendMessageBuilder('text', 'a')
+    msgBuilder = SendMessageBuilder('text', 'a', 'aleksa')
 
     msgBuilder.sign(private_key=private_key_info['private_key'], password='passphrase', private_key_id=private_key_info['key_id'], private_key_algorithm=private_key_info['algorithm'])
     
@@ -49,9 +49,11 @@ if __name__ == '__main__':
             print('Los potpis')
 
     
-    msgBuilder1 = SendMessageBuilder('text', 'a')
-
+    msgBuilder1 = SendMessageBuilder('text', 'a', 'aleksa')
+    msgBuilder1.sign(private_key=private_key_info['private_key'], password='passphrase', private_key_id=private_key_info['key_id'], private_key_algorithm=private_key_info['algorithm'])
+    msgBuilder1.zip()
     msgBuilder1.encrypt('DES3', public_key_info['public_key'], public_key_info['key_id'], public_key_info['algorithm'])
+    msgBuilder1.to_base64()
 
     msg = msgBuilder1.build()
 
@@ -74,3 +76,4 @@ if __name__ == '__main__':
             print('Dobar potpis')
         else:
             print('Los potpis')
+    print(msgReceiver1.build())
