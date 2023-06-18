@@ -42,19 +42,19 @@ class ImportKeyFrame(tk.Frame):
         # password
         password = tk.Label(
             self, text="Passphrase", bg='#ffffff', fg="#000000", font=("Arial", 16))
-        password.grid(row=3, column=0, sticky="nsew", padx=5, pady=5)
+        password.grid(row=3, column=0, sticky="nsew", padx=100, pady=5)
         self.password_entry = tk.Entry(self, font=("Arial", 16))
-        self.password_entry.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
+        self.password_entry.grid(row=3, column=1, padx=10, pady=5, sticky="nsew")
 
         button = tk.Button(self, text="Choose File - Private Key", command=self.choose_file1)
-        button.grid(row=4, column=0, columnspan=2, pady=10, sticky="nsew")
+        button.grid(row=4, column=0, columnspan=2, padx=100, sticky="nsew")
 
         button = tk.Button(self, text="Choose File - Public Key", command=self.choose_file2)
-        button.grid(row=5, column=0, columnspan=2, pady=10, sticky="nsew")
+        button.grid(row=5, column=0, columnspan=2, padx=100, sticky="nsew")
 
         # Create a button
         button = ttk.Button(self, text="Import", command=self.import_key)
-        button.grid(row=6, column=0, columnspan=2, pady=10, sticky="nsew")
+        button.grid(row=6, column=0, columnspan=2, padx=100, sticky="nsew")
     
     def import_key(self):
         if self.pem_file1 == '':

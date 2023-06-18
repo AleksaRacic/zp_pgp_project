@@ -6,21 +6,27 @@ class PgpApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        # Create the main window
         self.title("Login/Register App")
 
-        # Create a frame to hold the buttons
         frame = tk.Frame(self)
         frame.pack(pady=50)
         self.geometry('400x500')
 
-        # Create the Login button
-        login_btn = tk.Button(frame, text="Login", width=10, command=self.login)
-        login_btn.pack(pady=10)
+        pgp_label = tk.Label(
+            frame, text="PGP mailbox", fg="#0011ff", font=("Arial", 30))
 
-        # Create the Register button
-        register_btn = tk.Button(frame, text="Register", width=10, command=self.register)
-        register_btn.pack(pady=10)
+        login_button = tk.Button(
+            frame, text="Login", bg="#0011ff", fg="#FFFFFF", font=("Arial", 16), command=self.login)
+
+        register_btn = tk.Button(
+            frame, text="Register", bg="#0011ff", fg="#FFFFFF", font=("Arial", 16), command=self.register)
+        
+        pgp_label.grid(row=0, column=0, columnspan=2, sticky="news", pady=40)
+        login_button.grid(row=1, column=0, columnspan=2, sticky="news", pady=40)
+        register_btn.grid(row=2, column=0, columnspan=2, sticky="news", pady=40)
+        
+
+        
 
     def login(self):
         LoginWindow(self)

@@ -5,49 +5,6 @@ if __name__ == '__main__':
     private_key_info, public_key_info = generate_keys('name', 'email', 'RSA', 1024, 'passphrase')
 
     private_key_info1, public_key_info1 = generate_keys('name', 'email', 'RSA', 1024, 'passphrase')
-
-    msgBuilder = SendMessageBuilder('text', 'a', 'aleksa')
-
-    msgBuilder.sign(private_key=private_key_info['private_key'], password='passphrase', private_key_id=private_key_info['key_id'], private_key_algorithm=private_key_info['algorithm'])
-    
-    samo_potpisana_poruka = msgBuilder.build()
-
-    msgBuilder.zip()
-
-    zip_potpis_poruka = msgBuilder.build()
-
-    received_samo_potpisana = ReceiveMsgBuilder(samo_potpisana_poruka)
-
-    if received_samo_potpisana.check_zip():
-        received_samo_potpisana.unzip()
-    if received_samo_potpisana.is_signed():
-        key_id = received_samo_potpisana.get_signature_key_id()
-        print(key_id)
-        if received_samo_potpisana.verify_signature(public_key_info['public_key']):
-            print('Dobar potpis')
-        else:
-            print('Los potpis')
-        
-        print('Proveravam los potpis')
-        if received_samo_potpisana.verify_signature(public_key_info1['public_key']):
-            print('Dobar potpis')
-        else:
-            print('Los potpis')
-
-    print()
-    print()
-    print('zzip i potpis')
-    received_zip_potpis_poruka = ReceiveMsgBuilder(zip_potpis_poruka)
-    if received_zip_potpis_poruka.check_zip():
-        received_zip_potpis_poruka.unzip()
-    if received_zip_potpis_poruka.is_signed():
-        key_id = received_zip_potpis_poruka.get_signature_key_id()
-        print(key_id)
-        if received_zip_potpis_poruka.verify_signature(public_key_info['public_key']):
-            print('Dobar potpis')
-        else:
-            print('Los potpis')
-
     
     msgBuilder1 = SendMessageBuilder('text', 'a', 'aleksa')
     msgBuilder1.sign(private_key=private_key_info['private_key'], password='passphrase', private_key_id=private_key_info['key_id'], private_key_algorithm=private_key_info['algorithm'])
@@ -56,6 +13,9 @@ if __name__ == '__main__':
     msgBuilder1.to_base64()
 
     msg = msgBuilder1.build()
+
+    with open('plain.msg', "wb") as file:
+        file.write(msg)
 
     print(msg)
 
@@ -76,4 +36,7 @@ if __name__ == '__main__':
             print('Dobar potpis')
         else:
             print('Los potpis')
-    print(msgReceiver1.build())
+        msgReceiver1.remove_signature()
+
+    msg1 = msgReceiver1.build()
+    print(msg1)

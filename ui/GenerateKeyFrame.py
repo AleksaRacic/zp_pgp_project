@@ -26,13 +26,13 @@ class GenerateKeyFrame(tk.Frame):
         # Create a text input
         password_label = tk.Label(
             self, text="Password", bg='#ffffff', fg="#000000", font=("Arial", 16))
-        password_label.grid(row=2, column=0, sticky="nsew")
+        password_label.grid(row=2, column=0, sticky="nsew", pady=10)
         self.password_entry = tk.Entry(self, show="*", font=("Arial", 16))
         self.password_entry.grid(row=2, column=1, pady=20, sticky="nsew")
 
         # Create a dropdown
         dropdown_label = tk.Label(self, text="Key Size ", font=("Arial", 16), bg='#ffffff')
-        dropdown_label.grid(row=3, column=0, sticky="nsew", padx=5, pady=5)
+        dropdown_label.grid(row=3, column=0, sticky="nsew", padx=100, pady=5)
         self.key_size_var = tk.IntVar()
         dropdown_values = [1024, 2048]
         dropdown_menu = ttk.OptionMenu(self, self.key_size_var, dropdown_values[0], *dropdown_values)
@@ -47,7 +47,7 @@ class GenerateKeyFrame(tk.Frame):
 
         # Create a button
         button = ttk.Button(self, text="Submit", command=self.generate_keys)
-        button.grid(row=5, column=0, columnspan=2, pady=10, sticky="nsew")
+        button.grid(row=5, column=0, columnspan=2, pady=40, padx=100, sticky="nsew")
     
     def generate_keys(self):
         key_name = self.key_entry.get()

@@ -161,6 +161,10 @@ class ReceiveMsgBuilder:
         msg_json = json.loads(self.message.decode('utf-8'))
         return msg_json['signature']['key_id']
     
+    def remove_signature(self):
+        msg_json = json.loads(self.message.decode('utf-8'))
+        self.message = msg_json['message'].encode('utf-8')
+    
     def verify_signature(self, public_key):
         encoded_pk = public_key.encode('utf-8')
 

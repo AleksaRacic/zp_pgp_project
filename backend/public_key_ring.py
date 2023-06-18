@@ -16,7 +16,7 @@ class PublicKeyRing:
             self.keys[key_id] = info
 
     def get_key(self, key_id):
-        return self.keys.get(key_id)
+        return self.keys.get(str(key_id))
 
     def remove_key(self, key_id):
         if key_id in self.keys:
