@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from backend.generate import generate_keys
 from backend.private_key_ring import PrivateKeyRing
 from backend.public_key_ring import PublicKeyRing
@@ -63,6 +64,7 @@ class GenerateKeyFrame(tk.Frame):
 
         public_key_ring.save()
         private_key_ring.save()
+        messagebox.showinfo(message="Keys successfully created")
 
 
         

@@ -1,14 +1,15 @@
+import datetime
 import hashlib
 import os
 from .private_key_ring import PrivateKeyRing
 from .public_key_ring import PublicKeyRing
 from cryptography.hazmat.primitives.asymmetric import rsa, dsa
 from Crypto.PublicKey import ElGamal
-from Crypto.Math.Numbers import Integer
-from Crypto.Math.Primality import generate_probable_prime
 from Crypto.Random import get_random_bytes
 from cryptography.hazmat.primitives import serialization
 from Crypto.IO import PEM
+from asn1crypto import keys, pem
+
 
 def generate_and_serialize_keys(key_size, algorithm, passphrase):
 
@@ -31,7 +32,7 @@ def generate_and_serialize_keys(key_size, algorithm, passphrase):
     
 
     if algorithm != "ElGamal":
-        encryption_algorithm = serialization.BestAvailableEncryption(password=passphrase.encode())
+        encryption_algorithm = serialization.BestAvailableEncryption(password=passphrase.encode('utf-8'))
         pem_private = private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
@@ -43,8 +44,9 @@ def generate_and_serialize_keys(key_size, algorithm, passphrase):
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
     else:
-        pem_public = PEM.encode(public_key)
-        pem_private = PEM.encode(private_key, passphrase=passphrase)
+        
+        pem_public = PEM.encode(public_key, marker=None)
+        # pem_private = PEM.encode(private_key, passphrase=passphrase)
 
 
 
@@ -80,7 +82,8 @@ def generate_keys(name, email, algorithm, key_size, passphrase):
         'email': email,
         'algorithm': algorithm,
         'key_size': key_size,
-        'private_key': private_key.decode('utf-8')
+        'private_key': private_key.decode('utf-8'),
+        'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
 
     public_key_info = {
@@ -89,7 +92,8 @@ def generate_keys(name, email, algorithm, key_size, passphrase):
         'email': email,
         'algorithm': algorithm,
         'key_size': key_size,
-        'public_key': public_key.decode('utf-8')
+        'public_key': public_key.decode('utf-8'),
+        'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
 
     return private_key_info,public_key_info
