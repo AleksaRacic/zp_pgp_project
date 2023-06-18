@@ -1,3 +1,4 @@
+import base64
 import datetime
 import hashlib
 import tkinter as tk
@@ -9,7 +10,7 @@ from cryptography.hazmat.primitives import serialization
 from backend.private_key_ring import PrivateKeyRing
 from backend.public_key_ring import PublicKeyRing
 from cryptography.hazmat.primitives.asymmetric import rsa, dsa
-
+from Crypto.PublicKey import ElGamal
 
 class ImportKeyFrame(tk.Frame):
 
@@ -71,27 +72,43 @@ class ImportKeyFrame(tk.Frame):
                         public_key = pem_file.read()
                 
                 if public_key == None:
-                    private_key2 = serialization.load_pem_private_key(
-                        private_key,
-                        password=self.password_entry.get().encode('utf-8'),  # Optional: provide a password if the PEM is encrypted
-                    )
-                    public_key = private_key2.public_key()
+                    try:
+                        private_key2 = serialization.load_pem_private_key(
+                            private_key,
+                            password=self.password_entry.get().encode('utf-8'),  # Optional: provide a password if the PEM is encrypted
+                        )
+                    except Exception as e:
+                        private_key2 = eval((base64.b64decode(private_key)).decode())
+                        if private_key2['password'] != self.password_entry.get():
+                            messagebox.showinfo(message="Wrong password for private key!")
+                        tmp_key_private = private_key2
+                        private_key2 = ElGamal.construct((private_key2['p'],private_key2['g'], private_key2['y'], private_key2['x'],))
 
-                    public_key = public_key.public_bytes(
-                        encoding=serialization.Encoding.PEM,
-                        format=serialization.PublicFormat.SubjectPublicKeyInfo
-                    )
+                    try:
+                        public_key = private_key2.public_key()
+
+                        public_key = public_key.public_bytes(
+                            encoding=serialization.Encoding.PEM,
+                            format=serialization.PublicFormat.SubjectPublicKeyInfo
+                        )
+                    except Exception as e:
+                        tmp_key_public = private_key2.publickey()
+                        public_key = base64.b64encode(str({"p": int(tmp_key_public.p), "g": int(tmp_key_public.g), "y": int(tmp_key_public.y), "algorithm": tmp_key_private['algorithm'], "key_size": tmp_key_private['key_size']}).encode())
+
 
                 key_id = int.from_bytes(hashlib.sha256(public_key).digest()[-8:], byteorder='big')
                 
-                tmp_key_private = serialization.load_pem_private_key(
-                    private_key,
-                    password=self.password_entry.get().encode('utf-8'),  # Optional: provide a password if the PEM is encrypted
-                )
+                try:
+                    tmp_key_private = serialization.load_pem_private_key(
+                        private_key,
+                        password=self.password_entry.get().encode('utf-8'),  # Optional: provide a password if the PEM is encrypted
+                    )
 
-                tmp_key_public = serialization.load_pem_public_key(
-                    public_key,
-                )
+                    tmp_key_public = serialization.load_pem_public_key(
+                        public_key,
+                    )
+                except Exception as e:
+                    private_key = base64.b64encode(str({"p": int(tmp_key_private['p']), "g": int(tmp_key_private['g']), "y": int(tmp_key_private['y']), "x": int(tmp_key_private['x']), "password": tmp_key_private['password'], "algorithm": tmp_key_private['algorithm'], "key_size": tmp_key_private['key_size']}).encode())
 
                 if isinstance(tmp_key_private, rsa.RSAPrivateKey):
                     algorithm = "RSA"
@@ -105,7 +122,7 @@ class ImportKeyFrame(tk.Frame):
                     'name': self.key_entry.get(),
                     'email': self.username,
                     'algorithm': algorithm,
-                    'key_size': tmp_key_private.key_size,
+                    'key_size': tmp_key_private.key_size if algorithm != "ElGamal" else  tmp_key_private['key_size'],
                     'private_key': private_key.decode('utf-8'),
                     'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
@@ -115,7 +132,7 @@ class ImportKeyFrame(tk.Frame):
                     'name': self.key_entry.get(),
                     'email': self.username,
                     'algorithm': algorithm,
-                    'key_size': tmp_key_public.key_size,
+                    'key_size': tmp_key_public.key_size if algorithm != "ElGamal" else  tmp_key_private['key_size'],
                     'public_key': public_key.decode('utf-8'),
                     'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
