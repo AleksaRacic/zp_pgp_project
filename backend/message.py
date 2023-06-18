@@ -1,4 +1,4 @@
-import time
+import datetime
 import json
 import zlib
 import base64
@@ -17,7 +17,7 @@ class SendMessageBuilder:
     def __init__(self, plain_text, subject, sender):
         self.plain_message={
             'subject' : subject,
-            'timestamp' : time.time(),
+            'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'message' : plain_text,
             'sender' : sender
         }
@@ -56,7 +56,7 @@ class SendMessageBuilder:
         self.signature_json = {
             'message_digest' : signature.hex(),
             'key_id' : private_key_id,
-            'timestamp' : time.time(),
+            'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'algorithm' : private_key_algorithm
         }
 
