@@ -12,6 +12,7 @@ class PgpApp(tk.Tk):
         # Create a frame to hold the buttons
         frame = tk.Frame(self)
         frame.pack(pady=50)
+        self.geometry('400x500')
 
         # Create the Login button
         login_btn = tk.Button(frame, text="Login", width=10, command=self.login)
