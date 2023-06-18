@@ -35,7 +35,7 @@ class PgpWindow:
         keymenu.add_command(label="Import Key", command=self.setImportKeyFrame)
         keymenu.add_command(label="Generate Key", command=self.setGenerateKeyFrame)
         
-        self.curr_frame = PgpInboxFrame(self.window, user_folder)
+        self.curr_frame = PgpInboxFrame(self.window, self.user_folder, self.username)
         self.curr_frame.pack(fill=tk.BOTH, expand=True)
 
     def set_new_frame(self, newFrame):
@@ -45,7 +45,7 @@ class PgpWindow:
         newFrame.pack(fill=tk.BOTH, expand=True)
 
     def setPgpInboxFrame(self):
-        frame = PgpInboxFrame(self.window, self.user_folder)
+        frame = PgpInboxFrame(self.window, self.user_folder, self.username)
         self.set_new_frame(frame)
 
     def setComposeMailFrame(self):
