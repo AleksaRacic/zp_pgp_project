@@ -57,8 +57,54 @@ class ImportKeyFrame(tk.Frame):
         button.grid(row=6, column=0, columnspan=2, pady=10, sticky="nsew")
     
     def import_key(self):
-        if self.pem_file1 == '':
-            messagebox.showinfo(message="Error: Select your private key!!!")
+        if self.pem_file1 == '' and self.pem_file2 != '':
+            # private key
+            with open(self.pem_file2, 'rb') as pem_file:
+                public_key_pem = pem_file.read()
+            
+            try:
+                public_key = serialization.load_pem_public_key(
+                    public_key_pem,
+                )
+            except Exception as e:
+                public_key = eval((base64.b64decode(public_key_pem)).decode())
+                tmp_elgamal = public_key
+                public_key = ElGamal.construct((public_key['p'],public_key['g'], public_key['y']))
+
+            try:
+                public_key_hash = public_key.public_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo
+                )
+            except Exception as e:
+                algorithm = "ElGamal"
+                public_key_hash = base64.b64encode(str({"p": int(public_key.p), "g": int(public_key.g), "y": int(public_key.y), "algorithm": "ElGamal", "key_size": tmp_elgamal['key_size']}).encode())
+
+
+            key_id = int.from_bytes(hashlib.sha256(public_key_hash).digest()[-8:], byteorder='big')
+
+            if isinstance(public_key, rsa.RSAPublicKey):
+                algorithm = "RSA"
+            elif isinstance(public_key, dsa.DSAPublicKey):
+                algorithm = "DSA"
+            else:
+                algorithm = "ElGamal"       
+
+            public_key_info = {
+                'key_id': key_id,
+                'name': self.key_entry.get(),
+                'email': self.username,
+                'algorithm': algorithm,
+                'key_size': public_key.key_size if algorithm != "ElGamal" else  tmp_elgamal['key_size'],
+                'public_key': public_key_hash.decode('utf-8'),
+                'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+
+            public_key_ring = PublicKeyRing(self.user_folder.joinpath('keys'))
+
+            public_key_ring.add_key(public_key_info['key_id'], public_key_info)
+
+            public_key_ring.save()
         else:
             try:
                 # private key
