@@ -2,6 +2,7 @@ import tkinter as tk
 import os
 from tkinter import ttk
 from tkinter import filedialog
+from backend.private_key_ring import PrivateKeyRing
 
 from backend.public_key_ring import PublicKeyRing
 
@@ -13,9 +14,10 @@ class PublicKeysFrame(tk.Frame):
         self.username = username
         self.user_folder = user_folder
         self.public_key_ring = PublicKeyRing(self.user_folder.joinpath('keys'))
+        self.private_key_ring = PrivateKeyRing(self.user_folder.joinpath('keys'))
 
         login_label = tk.Label(
-            self, text="Private Keys", bg='#ffffff', fg="#0011ff", font=("Arial", 30))
+            self, text="Public Keys", bg='#ffffff', fg="#0011ff", font=("Arial", 30))
         login_label.pack()
 
         # Create the Treeview widget
@@ -55,7 +57,9 @@ class PublicKeysFrame(tk.Frame):
         key_id = values[0]
         self.public_key_ring.remove_key(key_id)
         self.public_key_ring.save()
-        print('Deleted key ', key_id)
+        self.private_key_ring.remove_key(key_id)
+        self.private_key_ring.save()
+        # print('Deleted key ', key_id)
         self.tree.delete(selected_item)
     
     def export_row(self, event):
@@ -63,10 +67,8 @@ class PublicKeysFrame(tk.Frame):
         values = self.tree.item(selected_item, "values")
         key_id = values[0]
         folder_path = filedialog.askdirectory()
-        print("Selected folder:", folder_path)
-        os.path.join(folder_path, values[1] + '_' + values[0])
-        #self.public_key_ring.export(key_id, nesto)
-        print('Exported key ', key_id)
+        path = os.path.join(folder_path, values[1] + '_' + values[0])
+        self.public_key_ring.export(key_id, path)
     
     def populate_tree(self):
         for item in self.public_key_ring.get_items():
