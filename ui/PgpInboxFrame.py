@@ -53,7 +53,7 @@ class PgpInboxFrame(tk.Frame):
             private_key_info = private_key_ring.get_key(self.private_key_id)
 
             if private_key_info == None:
-                messagebox.showerror(title="Error", message="No key id =" + str(private_key_info) + " in private key ring")
+                messagebox.showerror(title="Error", message="No key id =" + str(private_key_info['key_id']) + " in private key ring")
             
             self.password = simpledialog.askstring("Password Entry for key " + private_key_info['name'], "Password for " + private_key_info['name'], show='*')
 
@@ -79,13 +79,6 @@ class PgpInboxFrame(tk.Frame):
                 self.signature = 'Bad signature'
             msgReceiver1.remove_signature()
         self.message = msgReceiver1.build()
-
-        print(self.message)
-
-        print(self.signature)
-        print(self.encripted)
-        print(self.zipped)
-        print(self.format)
 
         MessageWindow(self.parent, self.message, self.signature, self.zipped,self.encripted, self.format)
     
