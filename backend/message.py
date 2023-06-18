@@ -10,7 +10,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
 
 from Crypto.Cipher import DES3, AES
-from Crypto.Util.Padding import pad
+from Crypto.Util.Padding import pad, unpad
 
 class SendMessageBuilder:
 
@@ -24,7 +24,7 @@ class SendMessageBuilder:
         self.message = json.dumps(self.plain_message).encode('utf-8')
 
     
-    def sign(self, private_key, password, private_key_id):
+    def sign(self, private_key, password, private_key_id, private_key_algorithm):
 
         encoded_pk = private_key.encode('utf-8')
 
@@ -32,16 +32,31 @@ class SendMessageBuilder:
             encoded_pk,
             password=password.encode('utf-8')
         )
-        
-        signature = private_key_object.sign(
-            self.message,
-            hashes.SHA1()
-        )
 
+        if private_key_algorithm == 'RSA':
+            signature = private_key_object.sign(
+                self.message,
+                padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA1()
+            )
+        elif private_key_algorithm == 'DSA':
+            signature = private_key_object.sign(
+                self.message,
+                hashes.SHA1()
+            )
+        elif private_key_algorithm == 'ElGamal':
+            raise Exception
+        else:
+            raise Exception
+        
         self.signature_json = {
             'message_digest' : signature.hex(),
             'key_id' : private_key_id,
-            'timestamp' : time.time()
+            'timestamp' : time.time(),
+            'algorithm' : private_key_algorithm
         }
 
         self.message = {
@@ -61,24 +76,29 @@ class SendMessageBuilder:
         self.message = json.dumps(self.message).encode('utf-8')
         return self
     
-    def encrypt(self, algorithm, public_key, public_key_id):
+    def encrypt(self, algorithm, public_key, public_key_id, public_key_algorithm):
         key = secrets.token_bytes(16)
 
         encoded_pk = public_key.encode('utf-8')
+
 
         public_key_object = serialization.load_pem_public_key(
             encoded_pk,
             backend=default_backend()
         )
 
-        encrypted_key = public_key_object.encrypt(
-            key,
-            padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA1()),
-            algorithm=hashes.SHA1(),
-            label=None
-        )
-        )
+        if public_key_algorithm == 'RSA':
+            encrypted_key = public_key_object.encrypt(
+                key,
+                padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None
+            )
+            )
+        else:
+            raise Exception('Unsupported algorithm')
+        
         algo_object = None
         if algorithm == 'DES3':
             algo_object = DES3
@@ -93,14 +113,17 @@ class SendMessageBuilder:
         encrypted_message = cipher.encrypt(padded_message)
 
         self.message = {
-            'encrypted_key' : encrypted_key.decode('utf-8'),
-            algorithm : encrypted_message.decode('utf-8'),
-            'key_id' : public_key_id
+            'encrypted_key' : base64.b64encode(encrypted_key).decode('utf-8'),
+            algorithm : base64.b64encode(encrypted_message).decode('utf-8'),
+            'key_id' : public_key_id,
+            'key_algorithm' : public_key_algorithm
         }
 
         self.message = json.dumps(self.message).encode('utf-8')
         return self
-
+    
+    def to_base64(self):
+        self.message = base64.b64encode(self.message)
 
     def build(self):
         return self.message
@@ -147,15 +170,92 @@ class ReceiveMsgBuilder:
 
         message = msg_json['message'].encode('utf-8')
 
+        algorithm = msg_json['signature']['algorithm']
+
         try:
-            public_key_object.verify(
-            signature,
-            message,
-            hashes.SHA1()
-            )   
-            return True
+            if algorithm == 'RSA':
+                public_key_object.verify(
+                signature,
+                message,
+                padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA1()
+                )   
+                return True
+            elif algorithm == 'DSA':
+                public_key_object.verify(
+                signature,
+                message,
+                hashes.SHA1()
+                )
+                return True
+            return False
         except InvalidSignature:
             return False
+    
+    def is_encripted(self):
+        msg_json = json.loads(self.message.decode('utf-8'))
+        if msg_json.get("encrypted_key") is None:
+            return False
+        return True
+
+    def get_encription_key_id(self):
+        msg_json = json.loads(self.message.decode('utf-8'))
+        return msg_json['key_id']
+    
+    def decrypt(self, private_key, password):
+        msg_json = json.loads(self.message.decode('utf-8'))
+
+        if msg_json.get("DES3") is not None:
+            algo_object = DES3
+            algorithm_s='DES3'
+        elif msg_json.get("AES") is not None:
+            algo_object = AES
+            algorithm_s='AES'
+        else:
+            raise Exception('Unsupported algorithm')
+        
+        encoded_pk = private_key.encode('utf-8')
+
+        private_key_object = serialization.load_pem_private_key(
+            encoded_pk,
+            password=password.encode('utf-8')
+        )
+
+        encrypted_key = base64.b64decode(msg_json['encrypted_key'].encode('utf-8'))
+
+        if msg_json['key_algorithm'] == 'RSA':
+            decrypted_key = private_key_object.decrypt(
+                encrypted_key,
+                padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None
+            )
+            )
+        else:
+            raise Exception('Unsupported algorithm')
+        
+        encrypted_message = base64.b64decode(msg_json[algorithm_s].encode('utf-8'))
+        cipher = algo_object.new(decrypted_key, algo_object.MODE_ECB)
+        self.message = unpad(cipher.decrypt(encrypted_message), algo_object.block_size)
+    
+    def is_base64(self):
+        try:
+            decoded_data = base64.b64decode(self.message)
+            return True
+        except base64.binascii.Error:
+            return False
+        
+    def decode_base64(self):
+        self.message = base64.b64decode(self.message)
+    
+    def build(self):
+        return json.loads(self.message.decode('utf-8'))
+
+        
 
 
     
