@@ -9,6 +9,9 @@ from Crypto.PublicKey import ElGamal
 from Crypto.Random import get_random_bytes
 from cryptography.hazmat.primitives import serialization
 from Crypto.IO import PEM
+
+from cryptography.hazmat.backends import default_backend
+
 from asn1crypto import keys, pem
 
 
@@ -17,7 +20,8 @@ def generate_and_serialize_keys(key_size, algorithm, passphrase):
     if algorithm == "RSA":
         private_key = rsa.generate_private_key(
             public_exponent=65537,
-            key_size=key_size
+            key_size=key_size,
+            backend=default_backend()
         )
         public_key = private_key.public_key()
     elif algorithm == "DSA":
