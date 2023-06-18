@@ -1,3 +1,4 @@
+import base64
 import datetime
 import hashlib
 import os
@@ -45,8 +46,8 @@ def generate_and_serialize_keys(key_size, algorithm, passphrase):
         )
     else:
         
-        pem_public = PEM.encode(public_key, marker=None)
-        # pem_private = PEM.encode(private_key, passphrase=passphrase)
+        pem_public = base64.b64encode(str({"p": int(public_key.p), "g": int(public_key.g), "y": int(public_key.y), "algorithm": algorithm, "key_size": key_size}).encode())
+        pem_private = base64.b64encode(str({"p": int(private_key.p), "g": int(private_key.g), "y": int(private_key.y), "x": int(private_key.x), "password": passphrase, "algorithm": algorithm, "key_size": key_size}).encode())
 
 
 

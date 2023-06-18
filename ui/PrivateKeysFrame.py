@@ -67,8 +67,8 @@ class PrivateKeysFrame(tk.Frame):
         values = self.tree.item(selected_item, "values")
         key_id = values[0]
         folder_path = filedialog.askdirectory()
-        path = os.path.join(folder_path, values[1] + '_' + values[0])
-        self.public_key_ring.export(key_id, path)
+        path = os.path.join(folder_path, values[1] + '_' + values[0] + '.pem')
+        self.private_key_ring.export(key_id, path)
     
     def populate_tree(self):
         for item in self.private_key_ring.get_items():
