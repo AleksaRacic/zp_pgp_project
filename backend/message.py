@@ -19,7 +19,7 @@ class SendMessageBuilder:
     def __init__(self, plain_text, subject, sender):
         self.plain_message={
             'subject' : subject,
-            'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'),
             'message' : plain_text,
             'sender' : sender
         }
@@ -58,7 +58,7 @@ class SendMessageBuilder:
         self.signature_json = {
             'message_digest' : signature.hex(),
             'key_id' : private_key_id,
-            'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'timestamp' : datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'),
             'algorithm' : private_key_algorithm
         }
 
