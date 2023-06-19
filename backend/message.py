@@ -1,5 +1,6 @@
 import datetime
 import json
+from tkinter import messagebox
 import zlib
 import base64
 import secrets
@@ -239,10 +240,14 @@ class ReceiveMsgBuilder:
 
         if msg_json['key_algorithm'] == 'RSA':
             encoded_pk = private_key.encode('utf-8')
-            private_key_object = serialization.load_pem_private_key(
-            encoded_pk,
-            password=password.encode('utf-8')
-            )
+            try:
+                private_key_object = serialization.load_pem_private_key(
+                encoded_pk,
+                password=password.encode('utf-8')
+                )
+            except Exception as e:
+                messagebox.showinfo(message=e)
+                return
 
             
             decrypted_key = private_key_object.decrypt(
@@ -260,6 +265,9 @@ class ReceiveMsgBuilder:
             g = elgamal_json['g']
             y = elgamal_json['y']
             x = elgamal_json['x']
+            if elgamal_json['password'] != password:
+                messagebox.showinfo(message="Wrong password")
+                return
             elgamal_key_public = construct((p,g,y,x))
             encrypted_key_elgamal = eval(encrypted_key)
             decrypted_msg = elgamal_key_public.decrypt(encrypted_key_elgamal)
