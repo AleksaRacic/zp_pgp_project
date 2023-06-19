@@ -25,19 +25,19 @@ class ComposeMailFrame(tk.Frame):
 
         # Checkbox for encryption
         self.encrypt_checkbox = tk.Checkbutton(self, text="Encrypt Message", variable=self.is_encrypted)
-        self.encrypt_checkbox.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=4)
+        self.encrypt_checkbox.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=4)
 
         # Checkbox for message signing
         self.sign_checkbox = tk.Checkbutton(self, text="Sign Message", variable=self.is_signed)
-        self.sign_checkbox.grid(row=1, column=6, columnspan=2, sticky="nsew", pady=4)
+        self.sign_checkbox.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=4)
 
         # Checkbox for compression
         self.compress_checkbox = tk.Checkbutton(self, text="Compress Message", variable=self.is_zipped)
-        self.compress_checkbox.grid(row=2, column=2, columnspan=2, sticky="nsew", pady=4)
+        self.compress_checkbox.grid(row=2, column=0, columnspan=2, sticky="nsew", pady=4)
 
         # Checkbox for radix-64 format
         self.radix64_checkbox = tk.Checkbutton(self, text="Convert to Radix-64 Format", variable=self.is_base64)
-        self.radix64_checkbox.grid(row=2, column=6, columnspan=2, sticky="nsew", pady=4)
+        self.radix64_checkbox.grid(row=2, column=2, columnspan=2, sticky="nsew", pady=4)
 
         # Input for email
         password = tk.Label(
@@ -57,45 +57,45 @@ class ComposeMailFrame(tk.Frame):
 
         # Input for private key selection
         dropdown_label = tk.Label(self, text="Private Key: ", font=("Arial", 16), bg='#ffffff')
-        dropdown_label.grid(row=4, column=3, sticky="nsew", padx=5, pady=3)
+        dropdown_label.grid(row=5, column=0, sticky="nsew", padx=5, pady=3)
         self.dropdown_var2 = tk.StringVar()
         dropdown_values = self.privateKeys()
         dropdown_menu = ttk.OptionMenu(self, self.dropdown_var2, dropdown_values[0], *dropdown_values)
-        dropdown_menu.grid(row=4, column=5, padx=5, pady=3, sticky="nsew")
+        dropdown_menu.grid(row=5, column=2, padx=5, pady=3, sticky="nsew")
 
         # Input for symmetric algorithm selection
         dropdown_label = tk.Label(self, text="Algorithm: ", font=("Arial", 16), bg='#ffffff')
-        dropdown_label.grid(row=5, column=0, sticky="nsew", padx=5, pady=3)
+        dropdown_label.grid(row=6, column=0, sticky="nsew", padx=5, pady=3)
         self.dropdown_var3 = tk.StringVar()
         dropdown_values = ["DES3", "AES"]
         dropdown_menu = ttk.OptionMenu(self, self.dropdown_var3, dropdown_values[0], *dropdown_values)
-        dropdown_menu.grid(row=5, column=2, padx=5, pady=3, sticky="nsew")
+        dropdown_menu.grid(row=6, column=2, padx=5, pady=3, sticky="nsew")
 
         # Input for subject
         password = tk.Label(
             self, text="Subject", bg='#ffffff', fg="#000000", font=("Arial", 14))
-        password.grid(row=6, column=0, sticky="nsew", padx=5, pady=3)
+        password.grid(row=7, column=0, sticky="nsew", padx=5, pady=3)
         self.subject = tk.Entry(self, width=65)
-        self.subject.grid(row=6, column=2, columnspan=2, sticky="nsew", pady=4)
+        self.subject.grid(row=7, column=2, columnspan=2, sticky="nsew", pady=4)
 
         # Input for email
         password = tk.Label(
             self, text="Message", bg='#ffffff', fg="#000000", font=("Arial", 14))
-        password.grid(row=7, column=0, sticky="nsew", padx=5, pady=3)
+        password.grid(row=8, column=0, sticky="nsew", padx=5, pady=3)
         self.message = tk.Entry(self, width=65)
-        self.message.grid(row=7, column=2, columnspan=2, sticky="nsew", pady=4)
+        self.message.grid(row=8, column=2, columnspan=2, sticky="nsew", pady=4)
 
         # Input for passphrase
         passphrase = tk.Label(
             self, text="Passphrase", bg='#ffffff', fg="#000000", font=("Arial", 14))
-        passphrase.grid(row=8, column=0, sticky="nsew", padx=5, pady=3)
-        self.passphrase = tk.Entry(self, width=65)
-        self.passphrase.grid(row=8, column=2, columnspan=2, sticky="nsew", pady=4)
+        passphrase.grid(row=9, column=0, sticky="nsew", padx=5, pady=3)
+        self.passphrase = tk.Entry(self, width=65, show='*')
+        self.passphrase.grid(row=9, column=2, columnspan=2, sticky="nsew", pady=4)
 
 
         # Button to send the message
         self.send_button = tk.Button(self, text="Send", command=self.send_message)
-        self.send_button.grid(row=9, column=2, columnspan=2, sticky="nsew", pady=40)
+        self.send_button.grid(row=10, column=2, columnspan=2, sticky="nsew", pady=40)
 
         #---------MOD--------------
 

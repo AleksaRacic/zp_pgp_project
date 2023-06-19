@@ -6,7 +6,7 @@ class PgpApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        self.title("Login/Register App")
+        self.title("PGP Launcher")
 
         frame = tk.Frame(self)
         frame.pack(pady=50)

@@ -16,7 +16,7 @@ class PgpWindow:
         self.username = username
         self.user_folder = user_folder
         self.window = tk.Toplevel(master)
-        self.window.title("PGP mail")
+        self.window.title("PGP mail " + username)
         self.window.geometry('1000x1000')
         self.window.configure(bg='#ffffff')
 
