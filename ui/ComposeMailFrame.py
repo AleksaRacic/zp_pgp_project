@@ -3,6 +3,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import simpledialog
 from backend.generate import generate_keys
 from backend.message import SendMessageBuilder
 from backend.private_key_ring import PrivateKeyRing
@@ -96,6 +97,12 @@ class ComposeMailFrame(tk.Frame):
         self.send_button = tk.Button(self, text="Send", command=self.send_message)
         self.send_button.grid(row=9, column=2, columnspan=2, sticky="nsew", pady=40)
 
+        #---------MOD--------------
+
+        # # Button to send the multiple messages
+        # self.send_button = tk.Button(self, text="Send multiple", command=self.send_multiple_message)
+        # self.send_button.grid(row=9, column=5, columnspan=2, sticky="nsew", pady=4)
+
     def publicKeys(self):
         public_key_ring = PublicKeyRing(self.user_folder.joinpath('keys'))
         all_keys = public_key_ring.keys.values()
@@ -159,7 +166,74 @@ class ComposeMailFrame(tk.Frame):
         
         messagebox.showinfo(message="Email successfully sent")
         print(msg)
+
+
+
+    # -------MOD----------
+
+    # def send_message_mod(self, email, public_key_name):
+
+    #     private_key_name = self.dropdown_var2.get()
+
+    #     public_key_ring = PublicKeyRing(self.user_folder.joinpath('keys'))
+    #     private_key_ring = PrivateKeyRing(self.user_folder.joinpath('keys'))
+
+    #     private_key = [key for key in private_key_ring.keys.values() if key['name'] == private_key_name][0]
+    #     public_key = [key for key in public_key_ring.keys.values() if key['name'] == public_key_name][0]
+
+    #     print(private_key, public_key)
+
+    #     if (self.is_encrypted.get() and self.is_signed.get()) and ((private_key['algorithm'] == "RSA" and public_key['algorithm'] != "RSA") or
+    #         (private_key['algorithm'] == "DSA" and public_key['algorithm'] != "ElGamal")):
+    #         messagebox.showinfo(message=f"when the private key type is {private_key['algorithm']}, then the public key type must not be {public_key['algorithm']}")
+    #         return
+
+
+    #     msgBuilder = SendMessageBuilder(self.message.get(), self.subject.get(), self.username)
+
+    #     if self.is_signed.get():
+    #         msgBuilder.sign(private_key=private_key['private_key'], password=self.passphrase.get(), private_key_id=private_key['key_id'], private_key_algorithm=private_key['algorithm'])
+        
+    #     if self.is_zipped.get():
+    #         msgBuilder.zip()
+
+    #     if self.is_encrypted.get():
+    #         msgBuilder.encrypt(self.dropdown_var3.get(), public_key['public_key'], public_key['key_id'], public_key['algorithm'])
+
+    #     if self.is_base64.get():
+    #         msgBuilder.to_base64()
+
+    #     msg = msgBuilder.build()
+        
+    #     # PATH
+    #     current_directory = os.getcwd()
+
+    #     path = os.path.join(current_directory, 'pgp_data', email, 'inbox', self.username + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.msg')
+
+    #     try:
+    #         with open(path, 'wb') as f:
+    #             f.write(msg)
+    #     except Exception as e:
+    #         messagebox.showinfo(message=f"No user with email - {email}")
+    #         return
+        
+    #     messagebox.showinfo(message="Email successfully sent")
+    #     print(msg)
+
     
+    # def send_multiple_message(self):
+
+    #     #emails should be splitted with ; - like masha;ziza
+
+    #     emails = self.email.get().split(';')
+
+    #     for email in emails:
+    #         selected_option = simpledialog.askstring("Select", f"For mail {email} ,enter a name of possible public keys - {self.publicKeys()}:")
+    #         self.send_message_mod(email, selected_option)
+
+
+
+
 
             
 
