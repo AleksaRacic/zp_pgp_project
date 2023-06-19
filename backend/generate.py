@@ -2,10 +2,11 @@ import base64
 import datetime
 import hashlib
 import os
+import json
 from .private_key_ring import PrivateKeyRing
 from .public_key_ring import PublicKeyRing
+from .ElGamal import ElGamalKey, generate
 from cryptography.hazmat.primitives.asymmetric import rsa, dsa
-from Crypto.PublicKey import ElGamal
 from Crypto.Random import get_random_bytes
 from cryptography.hazmat.primitives import serialization
 from Crypto.IO import PEM
@@ -30,7 +31,7 @@ def generate_and_serialize_keys(key_size, algorithm, passphrase):
         )
         public_key = private_key.public_key()
     elif algorithm == "ElGamal":
-        private_key = ElGamal.generate(key_size, get_random_bytes)
+        private_key = generate(key_size, get_random_bytes)
         public_key = private_key.publickey()
     else:
         raise TypeError

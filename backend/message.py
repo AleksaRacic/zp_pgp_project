@@ -4,6 +4,8 @@ import zlib
 import base64
 import secrets
 
+from .ElGamal import *
+
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -82,13 +84,11 @@ class SendMessageBuilder:
 
         encoded_pk = public_key.encode('utf-8')
 
-
-        public_key_object = serialization.load_pem_public_key(
-            encoded_pk,
-            backend=default_backend()
-        )
-
         if public_key_algorithm == 'RSA':
+            public_key_object = serialization.load_pem_public_key(
+                encoded_pk,
+                backend=default_backend()
+            )
             encrypted_key = public_key_object.encrypt(
                 key,
                 padding.OAEP(
@@ -97,6 +97,16 @@ class SendMessageBuilder:
                 label=None
             )
             )
+        elif public_key_algorithm == 'ElGamal':
+            decoded_key = base64.b64decode(public_key).decode()
+            elgamal_json = eval(decoded_key)
+            p = elgamal_json['p']
+            g = elgamal_json['g']
+            y = elgamal_json['y']
+            elgamal_key_public = construct((p,g,y))
+            encrypted_key = elgamal_key_public.encrypt(key.hex(),3)
+            encrypted_key = str(encrypted_key).encode('utf-8')
+
         else:
             raise Exception('Unsupported algorithm')
         
@@ -225,16 +235,16 @@ class ReceiveMsgBuilder:
         else:
             raise Exception('Unsupported algorithm')
         
-        encoded_pk = private_key.encode('utf-8')
-
-        private_key_object = serialization.load_pem_private_key(
-            encoded_pk,
-            password=password.encode('utf-8')
-        )
-
         encrypted_key = base64.b64decode(msg_json['encrypted_key'].encode('utf-8'))
 
         if msg_json['key_algorithm'] == 'RSA':
+            encoded_pk = private_key.encode('utf-8')
+            private_key_object = serialization.load_pem_private_key(
+            encoded_pk,
+            password=password.encode('utf-8')
+            )
+
+            
             decrypted_key = private_key_object.decrypt(
                 encrypted_key,
                 padding.OAEP(
@@ -243,6 +253,17 @@ class ReceiveMsgBuilder:
                 label=None
             )
             )
+        elif True: 
+            decoded_key = base64.b64decode(private_key).decode()
+            elgamal_json = eval(decoded_key)
+            p = elgamal_json['p']
+            g = elgamal_json['g']
+            y = elgamal_json['y']
+            x = elgamal_json['x']
+            elgamal_key_public = construct((p,g,y,x))
+            encrypted_key_elgamal = eval(encrypted_key)
+            decrypted_msg = elgamal_key_public.decrypt(encrypted_key_elgamal)
+            decrypted_key = bytes.fromhex(decrypted_msg)
         else:
             raise Exception('Unsupported algorithm')
         
